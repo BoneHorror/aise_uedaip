@@ -3862,6 +3862,13 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
         let emp_troopers = game.completed_count(player, unit::GUI_MONTAG);
         marines + (legionnaires * 3 / 2) + (firebats * 2) + emp_troopers + (bunkers * 4).min(marines) + (bunkers * 4).min(legionnaires)
     }
+    fn terran_air_score(game: Game, player: u8) -> u32 {
+        game.completed_count(player, unit::MISSILE_TURRET) +
+            game.completed_count(player, unit::MARINE) / 2 +
+            game.completed_count(player, unit::KUKULZA_GUARDIAN) * 3 / 2 + // Legionnaire
+            game.completed_count(player, unit::WRAITH) +
+            game.completed_count(player, unit::TOM_KAZANSKY) // Skywing
+    }
     fn zerg_ground_score(game: Game, player: u8) -> u32 {
         game.completed_count(player, unit::SUNKEN_COLONY) * 3 +
             game.completed_count(player, unit::HYDRALISK) +
@@ -3873,6 +3880,11 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
             game.completed_count(player, unit::HYDRALISK) +
             game.completed_count(player, unit::MUTALISK) +
             game.completed_count(player, unit::SCOURGE) / 2
+    }
+    fn protoss_ground_score(game: Game, player: u8) -> u32 {
+        game.completed_count(player, unit::ZEALOT) +
+            game.completed_count(player, unit::DRAGOON) / 2 +
+            game.completed_count(player, unit::PHOTON_CANNON)
     }
     fn protoss_air_score(game: Game, player: u8) -> u32 {
         game.completed_count(player, unit::DRAGOON) +
