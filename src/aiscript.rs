@@ -3863,7 +3863,7 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
         marines + (legionnaires * 3 / 2) + (firebats * 2) + emp_troopers + (bunkers * 4).min(marines) + (bunkers * 4).min(legionnaires)
     }
     fn terran_air_score(game: Game, player: u8) -> u32 {
-        game.completed_count(player, unit::MISSILE_TURRET) +
+        game.completed_count(player, unit::MISSILE_TURRET) * 2 +
             game.completed_count(player, unit::MARINE) / 2 +
             game.completed_count(player, unit::KUKULZA_GUARDIAN) * 3 / 2 + // Legionnaire
             game.completed_count(player, unit::WRAITH) +
@@ -3892,6 +3892,42 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
             game.completed_count(player, unit::DARK_TEMPLAR_HERO) + //Revenant
             game.completed_count(player, unit::MERCENARY_GUNSHIP) + //Hornet
             game.completed_count(player, unit::PHOTON_CANNON)
+    }
+    ///The expectation here is that it's either == 1 (ready to get stealth soon) or more than 1 (stealth available)
+    fn stealth_score(game: Game, player: u8) -> u32 { 
+        game.completed_count(player, unit::CITADEL_OF_ADUN) +
+            game.completed_count(player, unit::TEMPLAR_ARCHIVES) +
+            game.completed_count(player, unit::CONTROL_TOWER) +
+            game.completed_count(player, unit::ARBITER_TRIBUNAL) +
+            (game.completed_count(player, unit::HYDRALISK_DEN)+game.completed_count(player, unit::LAIR)) / 2 +
+            game.completed_count(player, unit::COVERT_OPS) +
+            game.completed_count(player, unit::LURKER) * 2 +
+            game.completed_count(player, unit::GHOST) * 2 +
+            game.completed_count(player, unit::WRAITH) +
+            game.completed_count(player, unit::DARK_TEMPLAR) +
+            game.completed_count(player, unit::DARK_TEMPLAR_HERO) + //Revenants
+            game.completed_count(player, unit::ARBITER) * 4
+        }
+    ///How easy is it for the enemy to ignore our static defense? Usage > 1; has some siege, > 8; trivial for enemy to ignore our static defense
+    fn siege_score(game: Game, player: u8) -> u32 { 
+        game.completed_count(player, unit::SIEGE_TANK_TANK) * 2 +
+            game.completed_count(player, unit::EDMUND_DUKE_TANK) + //Panzer
+            game.completed_count(player, unit::ALAN_SCHEZAR) + //Todesritter
+            game.completed_count(player, unit::GUARDIAN) * 2 +
+            game.completed_count(player, unit::CARRIER) * 4 +
+            game.completed_count(player, unit::REAVER) * 3
+    }
+    /// If this score is high maybe we should reconsider and use less air. Usage > 1; has some anti air, > 4; normal amount of anti-air, > 28; so much AA might be worth looking at ground
+    fn dedicated_anti_air_score(game: Game, player: u8) -> u32 { 
+        game.completed_count(player, unit::SCOURGE) +
+            game.completed_count(player, unit::DEVOURER) * 4 +
+            game.completed_count(player, unit::VALKYRIE) * 3 +
+            game.completed_count(player, unit::CORSAIR) * 2 +
+            game.completed_count(player, unit::DEFILER) * 3 +
+            game.completed_count(player, unit::SCOUT) * 2 +
+            game.completed_count(player, unit::MUTALISK) +
+            game.completed_count(player, unit::WRAITH) +
+            game.completed_count(player, unit::TOM_KAZANSKY) // Skywing
     }
 
     let failed = samase::ai_attack_prepare(player, x, y, false, false);
@@ -3939,47 +3975,53 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
     };
     samase::ai_attack_clear(player, true);
     match mode {
-        0x0 => {
+        0x0 => { //React if enemy has first production structure
             game.unit_count(enemy, unit::BARRACKS) > 0 ||
                 game.unit_count(enemy, unit::SPAWNING_POOL) > 0 ||
                 game.unit_count(enemy, unit::GATEWAY) > 0
         }
-        0x1 => {
-            terran_ground_score(game, enemy) > 16 ||
-                zerg_ground_score(game, enemy) > 10 ||
-                game.completed_count(enemy, unit::ZEALOT) > 6
+        0x1 => { //if enemy has basic units in low numbers
+            game.unit_count(enemy, unit::MARINE) > 4 ||
+                game.unit_count(enemy, unit::KUKULZA_GUARDIAN) > 2 || //Legionnaire
+                game.completed_count(enemy, unit::ZEALOT) > 2 ||
+                game.completed_count(enemy, unit::ZERGLING) > 5
         }
-        0x2 => {
-            terran_ground_score(game, enemy) > 24 ||
-                zerg_air_score(game, enemy) > 10
+        0x2 => { //if enemy has basic units in medium numbers
+            game.unit_count(enemy, unit::MARINE) > 7 ||
+                game.unit_count(enemy, unit::KUKULZA_GUARDIAN) > 5 || //Legionnaire
+                game.completed_count(enemy, unit::ZEALOT) > 5 ||
+                game.completed_count(enemy, unit::ZERGLING) > 10
         }
-        0x3 => {
-            terran_ground_score(game, enemy) > 5 ||
-                zerg_ground_score(game, enemy) > 2 ||
-                game.completed_count(enemy, unit::HYDRALISK_DEN) > 0 ||
-                game.completed_count(enemy, unit::ZEALOT) > 1
+        0x3 => { //all-in with basic units
+            game.unit_count(enemy, unit::MARINE) > 10 ||
+                game.unit_count(enemy, unit::KUKULZA_GUARDIAN) > 7 || //Legionnaire
+                game.completed_count(enemy, unit::ZEALOT) > 7 ||
+                game.completed_count(enemy, unit::ZERGLING) > 14
         }
-        0x4 => {
-            terran_ground_score(game, enemy) > 16 ||
-                zerg_ground_score(game, enemy) > 10 ||
-                game.completed_count(enemy, unit::ZEALOT) > 8
+        0x4 => { //typical opening pushes
+            game.unit_count(enemy, unit::SIEGE_TANK_TANK) > 1 ||
+            game.unit_count(enemy, unit::EDMUND_DUKE_TANK) > 0 || // Panzer
+                game.unit_count(enemy, unit::KUKULZA_GUARDIAN) > 8 || //Legionnaire
+                game.completed_count(enemy, unit::ZEALOT) > 8 ||
+                game.completed_count(player, unit::DRAGOON) > 6 ||
+                game.completed_count(player, unit::HYDRALISK) > 10
         }
-        0x5 => {
+        0x5 => { //low ground score
             terran_ground_score(game, enemy) > 6 ||
                 zerg_ground_score(game, enemy) > 6 ||
                 game.completed_count(enemy, unit::ZEALOT) > 3
         }
-        0x6 => {
+        0x6 => { //high ground score
             terran_ground_score(game, enemy) > 12 ||
                 game.completed_count(enemy, unit::SUNKEN_COLONY) > 1 ||
                 game.completed_count(enemy, unit::DRAGOON) > 1
         }
-        0x7 => {
+        0x7 => { //potential (can build soon) stealth score
             game.completed_count(enemy, unit::SIEGE_TANK_TANK) > 0 ||
                 game.completed_count(enemy, unit::QUEEN) > 0 ||
                 game.completed_count(enemy, unit::ZEALOT) > 6
         }
-        0x8 => {
+        0x8 => { //active stealth score
             terran_ground_score(game, enemy) > 5 ||
                 zerg_ground_score(game, enemy) > 2 ||
                 game.completed_count(enemy, unit::ZEALOT) > 1
