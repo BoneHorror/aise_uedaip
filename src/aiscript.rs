@@ -3855,21 +3855,22 @@ pub unsafe extern "C" fn rush_command(script: *mut bw::AiScript) {
 unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
     use bw_dat::unit;
 
-    fn bunker_marine_score(game: Game, player: u8) -> u32 {
+    fn terran_ground_score(game: Game, player: u8) -> u32 {
         let bunkers = game.completed_count(player, unit::BUNKER);
         let marines = game.completed_count(player, unit::MARINE);
         marines + (bunkers * 4).min(marines)
     }
-    fn sunken_hydra_score(game: Game, player: u8) -> u32 {
+    fn zerg_ground_score(game: Game, player: u8) -> u32 {
         game.completed_count(player, unit::SUNKEN_COLONY) * 2 +
-            game.completed_count(player, unit::HYDRALISK)
+            game.completed_count(player, unit::HYDRALISK) +
+            game.completed_count(player, unit::ZERGLING) / 2
     }
-    fn spore_hydra_muta_score(game: Game, player: u8) -> u32 {
+    fn zerg_air_score(game: Game, player: u8) -> u32 {
         game.completed_count(player, unit::SPORE_COLONY) * 2 +
             game.completed_count(player, unit::HYDRALISK) +
             game.completed_count(player, unit::MUTALISK)
     }
-    fn scout_dragoon_score(game: Game, player: u8) -> u32 {
+    fn protoss_air_score(game: Game, player: u8) -> u32 {
         game.completed_count(player, unit::DRAGOON) +
             game.completed_count(player, unit::SCOUT)
     }
@@ -3925,32 +3926,32 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
                 game.unit_count(enemy, unit::GATEWAY) > 0
         }
         0x1 => {
-            bunker_marine_score(game, enemy) > 16 ||
-                sunken_hydra_score(game, enemy) > 10 ||
+            terran_ground_score(game, enemy) > 16 ||
+                zerg_ground_score(game, enemy) > 10 ||
                 game.completed_count(enemy, unit::ZEALOT) > 6
         }
         0x2 => {
-            bunker_marine_score(game, enemy) > 24 ||
-                spore_hydra_muta_score(game, enemy) > 10
+            terran_ground_score(game, enemy) > 24 ||
+                zerg_air_score(game, enemy) > 10
         }
         0x3 => {
-            bunker_marine_score(game, enemy) > 5 ||
-                sunken_hydra_score(game, enemy) > 2 ||
+            terran_ground_score(game, enemy) > 5 ||
+                zerg_ground_score(game, enemy) > 2 ||
                 game.completed_count(enemy, unit::HYDRALISK_DEN) > 0 ||
                 game.completed_count(enemy, unit::ZEALOT) > 1
         }
         0x4 => {
-            bunker_marine_score(game, enemy) > 16 ||
-                sunken_hydra_score(game, enemy) > 10 ||
+            terran_ground_score(game, enemy) > 16 ||
+                zerg_ground_score(game, enemy) > 10 ||
                 game.completed_count(enemy, unit::ZEALOT) > 8
         }
         0x5 => {
-            bunker_marine_score(game, enemy) > 6 ||
-                sunken_hydra_score(game, enemy) > 6 ||
+            terran_ground_score(game, enemy) > 6 ||
+                zerg_ground_score(game, enemy) > 6 ||
                 game.completed_count(enemy, unit::ZEALOT) > 3
         }
         0x6 => {
-            bunker_marine_score(game, enemy) > 12 ||
+            terran_ground_score(game, enemy) > 12 ||
                 game.completed_count(enemy, unit::SUNKEN_COLONY) > 1 ||
                 game.completed_count(enemy, unit::DRAGOON) > 1
         }
@@ -3960,34 +3961,38 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
                 game.completed_count(enemy, unit::ZEALOT) > 6
         }
         0x8 => {
-            bunker_marine_score(game, enemy) > 5 ||
-                sunken_hydra_score(game, enemy) > 2 ||
+            terran_ground_score(game, enemy) > 5 ||
+                zerg_ground_score(game, enemy) > 2 ||
                 game.completed_count(enemy, unit::ZEALOT) > 1
         }
         0x9 => {
-            bunker_marine_score(game, enemy) > 9 ||
-                sunken_hydra_score(game, enemy) > 4 ||
+            terran_ground_score(game, enemy) > 9 ||
+                zerg_ground_score(game, enemy) > 4 ||
                 game.completed_count(enemy, unit::ZEALOT) > 5
         }
         0xa => {
-            bunker_marine_score(game, enemy) > 4 ||
-                sunken_hydra_score(game, enemy) > 4 ||
+            terran_ground_score(game, enemy) > 4 ||
+                zerg_ground_score(game, enemy) > 4 ||
                 game.completed_count(enemy, unit::ZEALOT) > 2
         }
         0xb => {
-            bunker_marine_score(game, enemy) > 10 ||
-                sunken_hydra_score(game, enemy) > 10 ||
+            terran_ground_score(game, enemy) > 10 ||
+                zerg_ground_score(game, enemy) > 10 ||
                 game.completed_count(enemy, unit::ZEALOT) > 5
         }
         0xc => {
-            bunker_marine_score(game, enemy) > 16 ||
-                spore_hydra_muta_score(game, enemy) > 5 ||
-                scout_dragoon_score(game, enemy) > 2
+            terran_ground_score(game, enemy) > 16 ||
+                zerg_air_score(game, enemy) > 5 ||
+                protoss_air_score(game, enemy) > 2
         }
         0xd => {
-            bunker_marine_score(game, enemy) > 24 ||
-                spore_hydra_muta_score(game, enemy) > 10 ||
-                scout_dragoon_score(game, enemy) > 7
+            terran_ground_score(game, enemy) > 24 ||
+                zerg_air_score(game, enemy) > 10 ||
+                protoss_air_score(game, enemy) > 7
+        }
+        0xe => {
+            game.completed_count(enemy, unit::PHOTON_CANNON) > 4 ||
+                game.completed_count(enemy, unit::MISSILE_TURRET) > 4
         }
         _ => true,
     }
