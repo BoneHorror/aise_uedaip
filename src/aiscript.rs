@@ -3857,21 +3857,29 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
     fn terran_ground_score(game: Game, player: u8) -> u32 {
         let bunkers = game.completed_count(player, unit::BUNKER);
         let marines = game.completed_count(player, unit::MARINE);
-        marines + (bunkers * 4).min(marines)
+        let legionnaires = game.completed_count(player, unit::KUKULZA_GUARDIAN);
+        let firebats = game.completed_count(player, unit::FIREBAT);
+        let emp_troopers = game.completed_count(player, unit::GUI_MONTAG);
+        marines + (legionnaires * 3 / 2) + (firebats * 2) + emp_troopers + (bunkers * 4).min(marines) + (bunkers * 4).min(legionnaires)
     }
     fn zerg_ground_score(game: Game, player: u8) -> u32 {
-        game.completed_count(player, unit::SUNKEN_COLONY) * 2 +
+        game.completed_count(player, unit::SUNKEN_COLONY) * 3 +
             game.completed_count(player, unit::HYDRALISK) +
-            game.completed_count(player, unit::ZERGLING) / 2
+            game.completed_count(player, unit::ZERGLING) / 2 +
+            game.completed_count(player, unit::LURKER) * 2
     }
     fn zerg_air_score(game: Game, player: u8) -> u32 {
         game.completed_count(player, unit::SPORE_COLONY) * 2 +
             game.completed_count(player, unit::HYDRALISK) +
-            game.completed_count(player, unit::MUTALISK)
+            game.completed_count(player, unit::MUTALISK) +
+            game.completed_count(player, unit::SCOURGE) / 2
     }
     fn protoss_air_score(game: Game, player: u8) -> u32 {
         game.completed_count(player, unit::DRAGOON) +
-            game.completed_count(player, unit::SCOUT)
+            game.completed_count(player, unit::SCOUT) +
+            game.completed_count(player, unit::DARK_TEMPLAR_HERO) + //Revenant
+            game.completed_count(player, unit::MERCENARY_GUNSHIP) + //Hornet
+            game.completed_count(player, unit::PHOTON_CANNON)
     }
 
     let failed = samase::ai_attack_prepare(player, x, y, false, false);
