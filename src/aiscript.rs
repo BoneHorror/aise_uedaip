@@ -3854,6 +3854,11 @@ pub unsafe extern "C" fn rush_command(script: *mut bw::AiScript) {
 unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
     use bw_dat::unit;
 
+    //race_(type)_score for air/ground is meant as a way to determine if we can do a timing attack against the given race our (type) of units.
+    //It does not cover all possible units, just what we would normally expect in early/midgame defense
+    //This is different from specialized scores after these race specific ones, where instead rush is used to detect if we need to defend against something
+    
+    ///Usage - > 4 ; can defend from scouting units; > 7 ; can defend against small pushes; > 14; can defend against early timings
     fn terran_ground_score(game: Game, player: u8) -> u32 {
         let bunkers = game.completed_count(player, unit::BUNKER);
         let marines = game.completed_count(player, unit::MARINE);
@@ -3862,6 +3867,7 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
         let emp_troopers = game.completed_count(player, unit::GUI_MONTAG);
         marines + (legionnaires * 3 / 2) + (firebats * 2) + emp_troopers + (bunkers * 4).min(marines) + (bunkers * 4).min(legionnaires)
     }
+    /// Usage - > 1 ; has any air defense; > 6 ; can defend against some air; > 12 ; can defend against decent air
     fn terran_air_score(game: Game, player: u8) -> u32 {
         game.completed_count(player, unit::MISSILE_TURRET) * 2 +
             game.completed_count(player, unit::MARINE) / 2 +
@@ -3869,28 +3875,32 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
             game.completed_count(player, unit::WRAITH) +
             game.completed_count(player, unit::TOM_KAZANSKY) // Skywing
     }
+    ///Usage - > 2 ; can defend from scouting units; > 5 ; can defend against small pushes; > 10; can defend against early timings
     fn zerg_ground_score(game: Game, player: u8) -> u32 {
         game.completed_count(player, unit::SUNKEN_COLONY) * 3 +
             game.completed_count(player, unit::HYDRALISK) +
             game.completed_count(player, unit::ZERGLING) / 2 +
             game.completed_count(player, unit::LURKER) * 2
     }
+    /// Usage - > 1 ; has any air defense; > 6 ; can defend against some air; > 10 ; can defend against decent air
     fn zerg_air_score(game: Game, player: u8) -> u32 {
         game.completed_count(player, unit::SPORE_COLONY) * 2 +
             game.completed_count(player, unit::HYDRALISK) +
             game.completed_count(player, unit::MUTALISK) +
             game.completed_count(player, unit::SCOURGE) / 2
     }
+    ///Usage - > 1 ; can defend from scouting units; > 3 ; can defend against small pushes; > 5; can defend against early timings
     fn protoss_ground_score(game: Game, player: u8) -> u32 {
         game.completed_count(player, unit::ZEALOT) +
             game.completed_count(player, unit::DRAGOON) / 2 +
             game.completed_count(player, unit::PHOTON_CANNON)
     }
+    /// Usage - > 1 ; has any air defense; > 4 ; can defend against some air; > 7 ; can defend against decent air
     fn protoss_air_score(game: Game, player: u8) -> u32 {
         game.completed_count(player, unit::DRAGOON) +
-            game.completed_count(player, unit::SCOUT) +
+            game.completed_count(player, unit::SCOUT) * 2 +
             game.completed_count(player, unit::DARK_TEMPLAR_HERO) + //Revenant
-            game.completed_count(player, unit::MERCENARY_GUNSHIP) + //Hornet
+            game.completed_count(player, unit::MERCENARY_GUNSHIP) / 2 + //Hornet
             game.completed_count(player, unit::PHOTON_CANNON)
     }
     ///The expectation here is that it's either == 1 (ready to get stealth soon) or more than 1 (stealth available)
@@ -3927,7 +3937,20 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
             game.completed_count(player, unit::SCOUT) * 2 +
             game.completed_count(player, unit::MUTALISK) +
             game.completed_count(player, unit::WRAITH) +
+            game.completed_count(player, unit::SCIENCE_VESSEL) + // mostly against Zerg but not making this conditional yet
             game.completed_count(player, unit::TOM_KAZANSKY) // Skywing
+    }
+    /// To be used to check if we're being threatened by Air units. Usage: > 0; has some air units, > 8; enough to be scary, > 12; a lot of air
+    fn air_push_score(game: Game, player: u8) -> u32 {
+        game.completed_count(player, unit::SCOUT) +
+        game.completed_count(player, unit::MUTALISK) +
+        game.completed_count(player, unit::WRAITH) +
+        game.completed_count(player, unit::TOM_KAZANSKY) + // Skywing
+        game.completed_count(player, unit::CARRIER) * 5 +
+        game.completed_count(player, unit::GUARDIAN) * 2 +
+        game.completed_count(player, unit::BATTLECRUISER) * 4 +  
+        game.completed_count(player, unit::NORAD_II) * 4 + // Battlecruiser clone for AI
+        game.completed_count(player, unit::FENIX_ZEALOT) * 4 // Valhalla
     }
 
     let failed = samase::ai_attack_prepare(player, x, y, false, false);
