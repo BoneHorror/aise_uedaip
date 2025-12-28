@@ -4093,7 +4093,10 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
         0x14 => { //a lot of air
             air_push_score(game, enemy) > 12
         }
-        _ => false, // don't want false - positive jumps from invalid Rush values, ideally this prints some debug?
+        _ => {
+            bw_print!("Invalid rush mode!");
+            false
+        }
     }
 }
 
