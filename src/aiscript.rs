@@ -3913,6 +3913,7 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
             game.completed_count(player, unit::COVERT_OPS) +
             game.completed_count(player, unit::LURKER) * 2 +
             game.completed_count(player, unit::GHOST) * 2 +
+            game.completed_count(player, unit::SARAH_KERRIGAN) * 2 + // Phantom
             game.completed_count(player, unit::WRAITH) +
             game.completed_count(player, unit::DARK_TEMPLAR) +
             game.completed_count(player, unit::DARK_TEMPLAR_HERO) + //Revenants
@@ -4023,8 +4024,11 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
         }
         0x4 => { //typical opening pushes
             game.unit_count(enemy, unit::SIEGE_TANK_TANK) > 1 ||
-            game.unit_count(enemy, unit::EDMUND_DUKE_TANK) > 0 || // Panzer
+                game.unit_count(enemy, unit::VULTURE) > 5 ||
+                game.unit_count(enemy, unit::GOLIATH) > 4 ||
+                game.unit_count(enemy, unit::EDMUND_DUKE_TANK) > 0 || // Panzer
                 game.unit_count(enemy, unit::KUKULZA_GUARDIAN) > 8 || //Legionnaire
+                game.unit_count(enemy, unit::JIM_RAYNOR_VULTURE) > 5 || // Scorpion
                 game.unit_count(enemy, unit::ZEALOT) > 8 ||
                 game.unit_count(player, unit::DRAGOON) > 6 ||
                 game.unit_count(player, unit::HYDRALISK) > 10
