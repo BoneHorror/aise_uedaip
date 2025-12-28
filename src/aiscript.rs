@@ -3998,36 +3998,36 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
     };
     samase::ai_attack_clear(player, true);
     match mode {
-        0x0 => { //React if enemy has first production structure
+        0x0 => { //React if enemy has at least started making their first production structure
             game.unit_count(enemy, unit::BARRACKS) > 0 ||
                 game.unit_count(enemy, unit::SPAWNING_POOL) > 0 ||
                 game.unit_count(enemy, unit::GATEWAY) > 0
         }
-        0x1 => { //if enemy has basic units in low numbers
+        0x1 => { //if enemy has basic units in low numbers; OK with in-construction, early check
             game.unit_count(enemy, unit::MARINE) > 4 ||
                 game.unit_count(enemy, unit::KUKULZA_GUARDIAN) > 2 || //Legionnaire
-                game.completed_count(enemy, unit::ZEALOT) > 2 ||
-                game.completed_count(enemy, unit::ZERGLING) > 5
+                game.unit_count(enemy, unit::ZEALOT) > 2 ||
+                game.unit_count(enemy, unit::ZERGLING) > 5
         }
         0x2 => { //if enemy has basic units in medium numbers
             game.unit_count(enemy, unit::MARINE) > 7 ||
                 game.unit_count(enemy, unit::KUKULZA_GUARDIAN) > 5 || //Legionnaire
-                game.completed_count(enemy, unit::ZEALOT) > 5 ||
-                game.completed_count(enemy, unit::ZERGLING) > 10
+                game.unit_count(enemy, unit::ZEALOT) > 5 ||
+                game.unit_count(enemy, unit::ZERGLING) > 10
         }
         0x3 => { //all-in with basic units
             game.unit_count(enemy, unit::MARINE) > 10 ||
                 game.unit_count(enemy, unit::KUKULZA_GUARDIAN) > 7 || //Legionnaire
-                game.completed_count(enemy, unit::ZEALOT) > 7 ||
-                game.completed_count(enemy, unit::ZERGLING) > 14
+                game.unit_count(enemy, unit::ZEALOT) > 7 ||
+                game.unit_count(enemy, unit::ZERGLING) > 14
         }
         0x4 => { //typical opening pushes
             game.unit_count(enemy, unit::SIEGE_TANK_TANK) > 1 ||
             game.unit_count(enemy, unit::EDMUND_DUKE_TANK) > 0 || // Panzer
                 game.unit_count(enemy, unit::KUKULZA_GUARDIAN) > 8 || //Legionnaire
-                game.completed_count(enemy, unit::ZEALOT) > 8 ||
-                game.completed_count(player, unit::DRAGOON) > 6 ||
-                game.completed_count(player, unit::HYDRALISK) > 10
+                game.unit_count(enemy, unit::ZEALOT) > 8 ||
+                game.unit_count(player, unit::DRAGOON) > 6 ||
+                game.unit_count(player, unit::HYDRALISK) > 10
         }
         0x5 => { //low ground score
             terran_ground_score(game, enemy) > 4 ||
