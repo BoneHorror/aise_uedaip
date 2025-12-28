@@ -4044,39 +4044,50 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
                 zerg_ground_score(game, enemy) > 10 ||
                 protoss_ground_score(game, enemy) > 5
         }
-        0x8 => { 
-            terran_air_score(game, enemy) > 14 ||
-                zerg_air_score(game, enemy) > 10 ||
-                protoss_air_score(game, enemy) > 5
+        0x8 => { //enemy has air defense
+            terran_air_score(game, enemy) > 1 ||
+                zerg_air_score(game, enemy) > 1 ||
+                protoss_air_score(game, enemy) > 1
         }
-        0x9 => {
-            terran_ground_score(game, enemy) > 9 ||
-                zerg_ground_score(game, enemy) > 4 ||
-                game.completed_count(enemy, unit::ZEALOT) > 5
+        0x9 => { //enemy can defend against a few air units
+            terran_air_score(game, enemy) > 6 ||
+                zerg_air_score(game, enemy) > 6 ||
+                protoss_air_score(game, enemy) > 4
         }
-        0xa => {
-            terran_ground_score(game, enemy) > 4 ||
-                zerg_ground_score(game, enemy) > 4 ||
-                game.completed_count(enemy, unit::ZEALOT) > 2
-        }
-        0xb => {
-            terran_ground_score(game, enemy) > 10 ||
-                zerg_ground_score(game, enemy) > 10 ||
-                game.completed_count(enemy, unit::ZEALOT) > 5
-        }
-        0xc => {
-            terran_ground_score(game, enemy) > 16 ||
-                zerg_air_score(game, enemy) > 5 ||
-                protoss_air_score(game, enemy) > 2
-        }
-        0xd => { //potential (can build soon) stealth score
-            terran_ground_score(game, enemy) > 24 ||
+        0xa => { //enemy can defend against mid air pushes
+            terran_air_score(game, enemy) > 12 ||
                 zerg_air_score(game, enemy) > 10 ||
                 protoss_air_score(game, enemy) > 7
         }
-        0xe => { //active stealth score
-            game.completed_count(enemy, unit::PHOTON_CANNON) > 4 ||
-                game.completed_count(enemy, unit::MISSILE_TURRET) > 4
+        0xb => { //potential (can build soon) cloaked units
+            stealth_score(game, enemy) > 0
+        }
+        0xc => { //actively using cloaked units
+            stealth_score(game, enemy) > 1
+        }
+        0xd => { //available siege
+            siege_score(game, enemy) > 1
+        }
+        0xe => { //lots of siege
+            siege_score(game, enemy) > 8
+        }
+        0xf => { //any AA
+            dedicated_anti_air_score(game, player) > 1
+        }
+        0x11 => { //basic AA
+            dedicated_anti_air_score(game, player) > 4
+        }
+        0x12 => { //lots of AA
+            dedicated_anti_air_score(game, player) > 28
+        }
+        0x13 => { //any air
+            air_push_score(game, player) > 0
+        }
+        0x14 => { //some air
+            air_push_score(game, player) > 8
+        }
+        0x15 => { //a lot of air
+            air_push_score(game, player) > 12
         }
         _ => true,
     }
