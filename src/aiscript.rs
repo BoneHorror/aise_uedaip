@@ -3838,7 +3838,6 @@ pub unsafe extern "C" fn panic_opcode(script: *mut bw::AiScript) {
     (*ai.0).panic_script_pos = offset;
 }
 
-/// Not used; isn't supposed to change anything from BW, for reference
 pub unsafe extern "C" fn rush_command(script: *mut bw::AiScript) {
     let mut read = ScriptData::new(script);
     let mode = read.read_u8();
