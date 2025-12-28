@@ -3857,7 +3857,7 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
     //race_(type)_score for air/ground is meant as a way to determine if we can do a timing attack against the given race our (type) of units.
     //It does not cover all possible units, just what we would normally expect in early/midgame defense
     //This is different from specialized scores after these race specific ones, where instead rush is used to detect if we need to defend against something
-    
+
     ///Usage - > 4 ; can defend from scouting units; > 7 ; can defend against small pushes; > 14; can defend against early timings
     fn terran_ground_score(game: Game, player: u8) -> u32 {
         let bunkers = game.completed_count(player, unit::BUNKER);
@@ -4030,24 +4030,24 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
                 game.completed_count(player, unit::HYDRALISK) > 10
         }
         0x5 => { //low ground score
-            terran_ground_score(game, enemy) > 6 ||
-                zerg_ground_score(game, enemy) > 6 ||
-                game.completed_count(enemy, unit::ZEALOT) > 3
-        }
-        0x6 => { //high ground score
-            terran_ground_score(game, enemy) > 12 ||
-                game.completed_count(enemy, unit::SUNKEN_COLONY) > 1 ||
-                game.completed_count(enemy, unit::DRAGOON) > 1
-        }
-        0x7 => { //potential (can build soon) stealth score
-            game.completed_count(enemy, unit::SIEGE_TANK_TANK) > 0 ||
-                game.completed_count(enemy, unit::QUEEN) > 0 ||
-                game.completed_count(enemy, unit::ZEALOT) > 6
-        }
-        0x8 => { //active stealth score
-            terran_ground_score(game, enemy) > 5 ||
+            terran_ground_score(game, enemy) > 4 ||
                 zerg_ground_score(game, enemy) > 2 ||
-                game.completed_count(enemy, unit::ZEALOT) > 1
+                protoss_ground_score(game, enemy) > 1
+        }
+        0x6 => { //small push ground score
+            terran_ground_score(game, enemy) > 7 ||
+                zerg_ground_score(game, enemy) > 5 ||
+                protoss_ground_score(game, enemy) > 3
+        }
+        0x7 => { //timing ground score
+            terran_ground_score(game, enemy) > 14 ||
+                zerg_ground_score(game, enemy) > 10 ||
+                protoss_ground_score(game, enemy) > 5
+        }
+        0x8 => { 
+            terran_air_score(game, enemy) > 14 ||
+                zerg_air_score(game, enemy) > 10 ||
+                protoss_air_score(game, enemy) > 5
         }
         0x9 => {
             terran_ground_score(game, enemy) > 9 ||
@@ -4069,12 +4069,12 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
                 zerg_air_score(game, enemy) > 5 ||
                 protoss_air_score(game, enemy) > 2
         }
-        0xd => {
+        0xd => { //potential (can build soon) stealth score
             terran_ground_score(game, enemy) > 24 ||
                 zerg_air_score(game, enemy) > 10 ||
                 protoss_air_score(game, enemy) > 7
         }
-        0xe => {
+        0xe => { //active stealth score
             game.completed_count(enemy, unit::PHOTON_CANNON) > 4 ||
                 game.completed_count(enemy, unit::MISSILE_TURRET) > 4
         }
