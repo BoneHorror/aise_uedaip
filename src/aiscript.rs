@@ -4076,24 +4076,24 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
             siege_score(game, enemy) > 8
         }
         0xf => { //any AA
-            dedicated_anti_air_score(game, player) > 1
+            dedicated_anti_air_score(game, enemy) > 1
         }
-        0x11 => { //basic AA
-            dedicated_anti_air_score(game, player) > 4
+        0x10 => { //basic AA
+            dedicated_anti_air_score(game, enemy) > 4
         }
-        0x12 => { //lots of AA
-            dedicated_anti_air_score(game, player) > 28
+        0x11 => { //lots of AA
+            dedicated_anti_air_score(game, enemy) > 28
         }
-        0x13 => { //any air
-            air_push_score(game, player) > 0
+        0x12 => { //any air
+            air_push_score(game, enemy) > 0
         }
-        0x14 => { //some air
-            air_push_score(game, player) > 8
+        0x13 => { //some air
+            air_push_score(game, enemy) > 8
         }
-        0x15 => { //a lot of air
-            air_push_score(game, player) > 12
+        0x14 => { //a lot of air
+            air_push_score(game, enemy) > 12
         }
-        _ => true,
+        _ => false, // don't want false - positive jumps from invalid Rush values, ideally this prints some debug?
     }
 }
 
