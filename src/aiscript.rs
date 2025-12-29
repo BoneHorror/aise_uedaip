@@ -4093,6 +4093,36 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
         0x14 => { //a lot of air
             air_push_score(game, enemy) > 12
         }
+        0x15 => { //we have a low ground score
+            terran_ground_score(game, player) > 4 ||
+                zerg_ground_score(game, player) > 2 ||
+                protoss_ground_score(game, player) > 1
+        }
+        0x16 => { //we have a small push ground score
+            terran_ground_score(game, player) > 7 ||
+                zerg_ground_score(game, player) > 5 ||
+                protoss_ground_score(game, player) > 3
+        }
+        0x17 => { //we have a timing ground score
+            terran_ground_score(game, player) > 14 ||
+                zerg_ground_score(game, player) > 10 ||
+                protoss_ground_score(game, player) > 5
+        }
+        0x18 => { //we have any air defense
+            terran_air_score(game, player) > 1 ||
+                zerg_air_score(game, player) > 1 ||
+                protoss_air_score(game, player) > 1
+        }
+        0x19 => { //we can defend against a few air units
+            terran_air_score(game, player) > 6 ||
+                zerg_air_score(game, player) > 6 ||
+                protoss_air_score(game, player) > 4
+        }
+        0x1a => { //we can defend against mid air pushes
+            terran_air_score(game, player) > 12 ||
+                zerg_air_score(game, player) > 10 ||
+                protoss_air_score(game, player) > 7
+        }
         _ => {
             bw_print!("Invalid rush mode!");
             false
