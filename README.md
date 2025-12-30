@@ -42,3 +42,9 @@ Modes:
 * 18: Enemy has any air units.
 * 19: Enemy has some air units.
 * 20: Enemy has a lot of air units.
+* 21: We have low ground defense score (can defend scouts).
+* 22: We have medium ground defense score (can defend small pushes).
+* 23: We have high ground defense score (can defend early timings).
+* 24: We have any air defense.
+* 25: We can defend against a few air units.
+* 26: We can defend against mid-sized air pushes.
