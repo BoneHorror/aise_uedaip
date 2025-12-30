@@ -4006,6 +4006,16 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
         game.completed_count(player, unit::FENIX_ZEALOT) * 4 // Valhalla
     }
 
+    let ai = ai::PlayerAi::get(player);
+    if (*ai.0).attack_grouping_region != 0 {
+        bw_print!("Aiscript rush: Attack is already being prepared for player {}", player);
+        return false; //don't jump if either of those is triggered? ideally this is written only with a debug build
+    }
+    if (*ai.0).attack_force.iter().any(|&x| x != 0 && x != unit::NONE.0.wrapping_add(1)) { //not super sure about the syntax/logic here
+        bw_print!("Aiscript rush: Attack force is not empty for player {}", player);
+        return false;
+    }
+
     let failed = samase::ai_attack_prepare(player, x, y, false, false);
     if failed != 0 {
         return true;
