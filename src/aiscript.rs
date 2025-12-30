@@ -899,6 +899,58 @@ impl GlobalAiMode {
     }
 }
 
+pub unsafe extern "C" fn target_expansion(script: *mut bw::AiScript) {
+    if feature_disabled("target_expansion") {
+        return;
+    }
+    // Normally target_expansion checks if set_attacks flag is > 0.
+    // We skip this check as we don't have access to that flag currently.
+
+    let player = (*script).player as u8;
+    let game = bw::game();
+
+    let mut start_locations = Vec::new();
+    for unit in unit::active_units() {
+        if unit.id() == UnitId(214) { // Start Location
+            start_locations.push(unit.position());
+        }
+    }
+
+    let mut best_target = None;
+    let mut min_dist = u32::MAX;
+    let script_pos = bw::Point {
+        x: (*script).center.x as i16,
+        y: (*script).center.y as i16,
+    };
+
+    for unit in unit::active_units() {
+        let unit_player = unit.player();
+        if unit_player == player || game.allied(player, unit_player) {
+            continue;
+        }
+        if !unit.id().is_town_hall() || !unit.is_completed() {
+            continue;
+        }
+
+        let pos = unit.position();
+        let is_start_loc = start_locations.iter().any(|&loc| {
+            bw::distance(pos, loc) < 32 * 8 // test in game if this feels right, I might have noted what the real check is somewhere
+        });
+
+        if !is_start_loc {
+            let dist = bw::distance(script_pos, pos);
+            if dist < min_dist {
+                min_dist = dist;
+                best_target = Some(pos);
+            }
+        }
+    }
+
+    if let Some(target) = best_target {
+        attack_to_pos(player, script_pos, target);
+    }
+}
+
 pub unsafe extern "C" fn aicontrol(script: *mut bw::AiScript) {
     let mut read = ScriptData::new(script);
     let mode = read.read_u8();
