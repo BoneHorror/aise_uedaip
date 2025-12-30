@@ -844,7 +844,7 @@ pub struct PlayerAiData {
     pub request_count: u8,
     pub build_cooldown: u8,
     pub nuke_rate_minutes: u8,
-    pub unk_attack: u8,
+    pub set_attacks: u8,
     pub previous_nuke_timer: u32,
     pub flags: u16,
     pub panic_script_pos: u16,

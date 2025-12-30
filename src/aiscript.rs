@@ -907,6 +907,10 @@ pub unsafe extern "C" fn target_expansion(script: *mut bw::AiScript) {
     // We skip this check as we don't have access to that flag currently.
 
     let player = (*script).player as u8;
+    let ai_data = bw::player_ai(player.into());
+    if (*ai_data).set_attacks == 0 {
+        return;
+    }
     let game = bw::game();
 
     let mut start_locations = Vec::new();
