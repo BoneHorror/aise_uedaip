@@ -502,6 +502,7 @@ pub unsafe extern "C" fn samase_plugin_init(api: *const PluginApi) {
     aiscript_opcode(api, 0xa0, crate::aiscript::bw_kills);
     aiscript_opcode(api, 0xa1, crate::aiscript::build_at);
     aiscript_opcode(api, 0xa2, crate::aiscript::debug_name);
+    aiscript_opcode(api, 0x5A, crate::aiscript::clear_regions);
     aiscript_opcode(api, 0x49, crate::aiscript::rush_command);
 
     GET_REGION.init(

@@ -182,7 +182,7 @@ static OPCODE_NAMES: &[&str] = &[
     "sharedvision_on",      // 0x57
     "sharedvision_off",     // 0x58
     "nuke_location",        // 0x59
-    "harass_location",      // 0x5A
+    "clear_regions",        // 0x5A #originally harass_location but since that does nothing, I just replaced it
     "implode",              // 0x5B
     "guard_all",            // 0x5C
     "enemyowns_jump",       // 0x5D

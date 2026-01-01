@@ -3819,6 +3819,36 @@ pub unsafe extern "C" fn create_script(script: *mut bw::AiScript) {
     bw::set_first_ai_script(&mut (*script).bw);
 }
 
+pub unsafe extern "C" fn clear_regions(script: *mut bw::AiScript) {
+    if feature_disabled("clear_regions") {
+        return;
+    }
+    let player = (*script).player;
+    let ai_regions = bw::ai_regions(player);
+    let pathing = bw::pathing();
+    let region_count = (*pathing).region_count;
+    let game = bw::game();
+    let unit_search = aiscript_unit_search(game);
+
+    for i in 0..region_count {
+        let region = ai_regions.add(i as usize);
+        let state = (*region).state;
+        if state == 5 || state == 6 {
+            let pathing_region = &(*pathing).regions[i as usize];
+            let has_buildings = unit_search
+                .search_iter(&(*pathing_region).area)
+                .any(|u| {
+                    u.player() as u32 == player &&
+                    u.id().is_building() &&
+                    bw::get_region(u.position()) == Some(i)
+                });
+            if !has_buildings {
+                bw::change_ai_region_state(region, 0);
+            }
+        }
+    }
+}
+
 pub unsafe extern "C" fn panic_opcode(script: *mut bw::AiScript) {
     let mut read = ScriptData::new(script);
     let offset = read.read_u16();
