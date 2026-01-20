@@ -343,7 +343,10 @@ pub unsafe extern "C" fn if_attacking(script: *mut bw::AiScript) {
     }
     let ai = bw::player_ai((*script).player);
     if (*ai).attack_grouping_region != 0 {
-        (*script).pos = dest;
+        let region = ai_region((*script).player, (*ai).attack_grouping_region - 1);
+        if (*region).state == 8 {
+            (*script).pos = dest;
+        }
     }
 }
 
