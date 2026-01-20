@@ -187,7 +187,7 @@ static OPCODE_NAMES: &[&str] = &[
     "guard_all",            // 0x5C
     "enemyowns_jump",       // 0x5D
     "enemyresources_jump",  // 0x5E
-    "region_force",         // 0x5F
+    "if_dif",               // 0x5F
     "easy_attack",          // 0x60
     "kill_thread",          // 0x61
     "killable",             // 0x62
@@ -331,10 +331,6 @@ impl OpcodeParam {
 static OPCODE_PARAMS: &[OpcodeParam] = &[
     OpcodeParam::one(OpParam::Address), //  goto
     OpcodeParam::two(OpParam::Unit, OpParam::ShortAddress), //  notowns_jump
-    OpcodeParam::many(&[
-        OpParam::U8, OpParam::U16, OpParam::U8, OpParam::U8,
-        OpParam::Point, OpParam::ShortAddress,
-    ]), // region_force
     OpcodeParam::one(OpParam::U16), //  wait
     OpcodeParam::NONE, //  start_town
     OpcodeParam::NONE, //  start_areatown
@@ -428,10 +424,7 @@ static OPCODE_PARAMS: &[OpcodeParam] = &[
     OpcodeParam::NONE, //  guard_all
     OpcodeParam::two(OpParam::Unit, OpParam::ShortAddress), //  enemyowns_jump
     OpcodeParam::three(OpParam::U16, OpParam::U16, OpParam::ShortAddress), //  enemyresources_jump
-    OpcodeParam::many(&[
-        OpParam::U8, OpParam::U16, OpParam::U8, OpParam::U8,
-        OpParam::Point, OpParam::ShortAddress,
-    ]), // region_force
+    OpcodeParam::three(OpParam::U8, OpParam::U8, OpParam::ShortAddress), //  if_dif
     OpcodeParam::two(OpParam::U8, OpParam::Unit), //  easy_attack
     OpcodeParam::NONE, //  kill_thread
     OpcodeParam::NONE, //  killable
