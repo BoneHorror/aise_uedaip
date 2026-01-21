@@ -3981,6 +3981,21 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
             game.completed_count(player, unit::CARRIER) * 4 +
             game.completed_count(player, unit::REAVER) * 3
     }
+    ///How many AoE units the enemy has to deal with low-HP unit spam. Usage > 3; has any AoE, > 12; can probably roast some Zerglings, > 20; might not be worth spamming lings etc
+    fn aoe_score(game: Game, player: u8) -> u32 { 
+        game.completed_count(player, unit::SIEGE_TANK_TANK) * 2 +
+            game.completed_count(player, unit::EDMUND_DUKE_TANK) * 4 + //Panzer
+            game.completed_count(player, unit::FENIX_ZEALOT) * 4 + // Valhalla
+            game.completed_count(player, unit::TOM_KAZANSKY) + // Skywing
+            game.completed_count(player, unit::FIREBAT) + 
+            game.completed_count(player, unit::SCIENCE_VESSEL) + // just for Irradiate
+            game.completed_count(player, unit::LURKER) * 2 +
+            game.completed_count(player, unit::INFESTED_TERRAN) * 2 +
+            game.completed_count(player, unit::DEFILER) + // just for Plague
+            game.completed_count(player, unit::HIGH_TEMPLAR) * 2 +
+            game.completed_count(player, unit::ARCHON) * 4 +
+            game.completed_count(player, unit::REAVER) * 4
+    }
     /// If this score is high maybe we should reconsider and use less air. Usage > 1; has some anti air, > 4; normal amount of anti-air, > 28; so much AA might be worth looking at ground
     fn dedicated_anti_air_score(game: Game, player: u8) -> u32 { 
         game.completed_count(player, unit::SCOURGE) +
@@ -4185,6 +4200,15 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
             terran_air_score(game, player) > 12 ||
                 zerg_air_score(game, player) > 10 ||
                 protoss_air_score(game, player) > 7
+        }
+        0x1b => { //minimal enemy ground AoE
+            aoe_score(game, enemy) > 3
+        }
+        0x1c => { //some enemy ground AoE
+            aoe_score(game, enemy) > 12
+        }
+        0x1d => { //lots of enemy ground AoE
+            aoe_score(game, enemy) > 20
         }
         _ => {
             bw_print!("Invalid rush mode!");
