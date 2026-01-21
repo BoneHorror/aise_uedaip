@@ -350,6 +350,26 @@ pub unsafe extern "C" fn if_attacking(script: *mut bw::AiScript) {
     }
 }
 
+pub unsafe extern "C" fn if_preparing(script: *mut bw::AiScript) {
+    let mut read = ScriptData::new(script);
+    let dest = read.read_jump_pos();
+    if feature_disabled("if_preparing") || read.is_invalid() {
+        return;
+    }
+    let ai = bw::player_ai((*script).player);
+    let mut jump = false;
+    if (*ai).attack_grouping_region != 0 { //If we are in attack preparation...
+        let region = ai_region((*script).player, (*ai).attack_grouping_region - 1);
+        jump = (*region).state == 8
+    }
+    if !jump { //or we are not preparing an attack and there are units added to the attack force
+        jump = samase::ai_get_attack_force((*script).player as u8) > 0;
+    }
+    if jump {
+        (*script).pos = dest;
+    }
+}
+
 pub unsafe extern "C" fn unstart_campaign(script: *mut bw::AiScript) {
     if feature_disabled("unstart_campaign") {
         return;
@@ -3992,7 +4012,7 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
         bw_print!("Aiscript rush: Attack is already being prepared for player {}", player);
         return false; //don't jump if either of those is triggered? ideally this is written only with a debug build
     }
-    if (*ai.0).attack_force.iter().any(|&x| x != 0 && x != unit::NONE.0.wrapping_add(1)) { //not super sure about the syntax/logic here
+    if samase::ai_get_attack_force(player) > 0 {
         bw_print!("Aiscript rush: Attack force is not empty for player {}", player);
         return false;
     }

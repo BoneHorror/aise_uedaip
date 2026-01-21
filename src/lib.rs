@@ -158,6 +158,7 @@ fn feature_disabled(name: &str) -> bool {
             "bw_kills",
             "everything_else",
             "clear_regions",
+            "if_preparing",
         ];
         let (data, len) = match samase::read_file("samase\\aise_disabled_features.txt") {
             Some(s) => s,

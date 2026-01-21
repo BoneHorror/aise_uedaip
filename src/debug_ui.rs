@@ -255,6 +255,7 @@ static OPCODE_NAMES: &[&str] = &[
     "bw_kills",             // 0xa0
     "build_at",             // 0xa1
     "debug_name",           // 0xa2
+    "if_preparing",   // 0xa3
 ];
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -555,6 +556,8 @@ static OPCODE_PARAMS: &[OpcodeParam] = &[
     OpcodeParam::three(OpParam::Unit, OpParam::Point, OpParam::U32),
     // debug_name
     OpcodeParam::one(OpParam::String),
+    // if_preparing
+    OpcodeParam::one(OpParam::Address),
 ];
 
 unsafe extern "C" fn debug_tab_scripts(api: *const DebugUiDraw, _: *mut c_void) {

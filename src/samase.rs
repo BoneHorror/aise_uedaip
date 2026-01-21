@@ -463,6 +463,7 @@ pub unsafe extern "C" fn samase_plugin_init(api: *const PluginApi) {
     aiscript_opcode(api, 0x44, crate::aiscript::panic_opcode);
     aiscript_opcode(api, 0x46, crate::aiscript::do_morph);
     aiscript_opcode(api, 0x4c, crate::aiscript::train);
+    aiscript_opcode(api, 0x5a, crate::aiscript::clear_regions);
     aiscript_opcode(api, 0x71, crate::aiscript::attack_to);
     aiscript_opcode(api, 0x72, crate::aiscript::attack_timeout);
     aiscript_opcode(api, 0x73, crate::aiscript::issue_order);
@@ -513,7 +514,7 @@ pub unsafe extern "C" fn samase_plugin_init(api: *const PluginApi) {
     aiscript_opcode(api, 0xa0, crate::aiscript::bw_kills);
     aiscript_opcode(api, 0xa1, crate::aiscript::build_at);
     aiscript_opcode(api, 0xa2, crate::aiscript::debug_name);
-    aiscript_opcode(api, 0x5A, crate::aiscript::clear_regions);
+    aiscript_opcode(api, 0xa3, crate::aiscript::if_preparing);
     aiscript_opcode(api, 0x49, crate::aiscript::rush_command);
 
     GET_REGION.init(
