@@ -59,4 +59,4 @@ rev = "69d1e9ee3987d84e1ac78d1b1529fab94cfe766e"
 
 [dependencies.samase_plugin]
 git = "https://github.com/neivv/samase_plugin"
-rev = "69d1e9ee3987d84e1ac78d1b1529fab94cfe766e"
+rev = "f928705f9d9d13d1d4b16ab234014ff268e3f89a"

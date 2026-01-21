@@ -323,6 +323,7 @@ static AI_ADD_TO_ATTACK_FORCE: AtomicUsize = AtomicUsize::new(0);
 static AI_REMOVE_FROM_ATTACK_FORCE: AtomicUsize = AtomicUsize::new(0);
 static AI_ATTACK_PREPARE: AtomicUsize = AtomicUsize::new(0);
 static AI_ATTACK_CLEAR: AtomicUsize = AtomicUsize::new(0);
+static AI_GET_ATTACK_FORCE: AtomicUsize = AtomicUsize::new(0);
 
 static FUNCS: &[(&AtomicUsize, FuncId)] = &[
 ];
@@ -331,6 +332,7 @@ static OPTIONAL_FUNCS: &[(&AtomicUsize, FuncId)] = &[
     (&AI_REMOVE_FROM_ATTACK_FORCE, FuncId::AiRemoveFromAttackForce),
     (&AI_ATTACK_PREPARE, FuncId::AiAttackPrepare),
     (&AI_ATTACK_CLEAR, FuncId::AiAttackClear),
+    (&AI_GET_ATTACK_FORCE, FuncId::AiGetAttackForce),
 ];
 
 #[inline]
@@ -409,6 +411,15 @@ pub unsafe fn ai_attack_prepare(
         func(player as u32, x, y, always_override as u32, allow_air_fallback as u32)
     } else {
         panic!("ai_attack_prepare not supported");
+    }
+}
+
+pub unsafe fn ai_get_attack_force(player: u8) -> usize {
+    let func = load_func_opt::<unsafe extern "C" fn(u8, *mut u16, u32) -> usize>(&AI_GET_ATTACK_FORCE);
+    if let Some(func) = func {
+        func(player, null_mut(), 0)
+    } else {
+        panic!("ai_get_attack_force not supported");
     }
 }
 
