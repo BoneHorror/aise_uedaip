@@ -26,7 +26,7 @@ dependencies = [
  "rand",
  "rand_xoshiro",
  "rustc-hash",
- "samase_plugin",
+ "samase_plugin 0.5.0 (git+https://github.com/neivv/samase_plugin?rev=f928705f9d9d13d1d4b16ab234014ff268e3f89a)",
  "samase_shim",
  "scopeguard",
  "serde",
@@ -340,6 +340,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "samase_plugin"
+version = "0.5.0"
+source = "git+https://github.com/neivv/samase_plugin?rev=f928705f9d9d13d1d4b16ab234014ff268e3f89a#f928705f9d9d13d1d4b16ab234014ff268e3f89a"
+
+[[package]]
 name = "samase_shim"
 version = "0.5.0"
 source = "git+https://github.com/neivv/samase_plugin?rev=69d1e9ee3987d84e1ac78d1b1529fab94cfe766e#69d1e9ee3987d84e1ac78d1b1529fab94cfe766e"
@@ -348,7 +353,7 @@ dependencies = [
  "libc",
  "once_cell",
  "parking_lot",
- "samase_plugin",
+ "samase_plugin 0.5.0 (git+https://github.com/neivv/samase_plugin?rev=69d1e9ee3987d84e1ac78d1b1529fab94cfe766e)",
  "thread_local",
  "whack",
  "winapi",

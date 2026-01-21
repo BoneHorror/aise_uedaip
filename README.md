@@ -48,7 +48,18 @@ Modes:
 * 24: We have any air defense.
 * 25: We can defend against a few air units.
 * 26: We can defend against mid-sized air pushes.
+* 27: Enemy has very few anti-ground AoE units.
+* 28: Enemy has some AoE units.
+* 29: Enemy has a lot of AoE units.
 
 ### clear_regions (replaces harass_location!)
 
 This opcode removes all state 5 and state 6 regions that currently do not have self-owned buildings in them at run-time. It's meant to help mainly in melee or with unstart_campaign scripts, where in some late-game conditions the AI can 'leak' town regions via state 3->state 4(->6/5) transforms
+
+### if_preparing (new opcode at 0xa3, takes block)
+
+This opcode checks if there is a preparation region set in memory or if there are any units currently added to the attack party.
+
+### if_attacking
+
+if_attacking was modified to make an extra check whether the AI player has a state 8 region.
