@@ -106,7 +106,7 @@ unsafe fn attack_to_pos(player: u8, grouping: bw::Point, target: bw::Point) {
 pub unsafe extern "C" fn try_townpoint(script: *mut bw::AiScript) {
     let mut read = ScriptData::new(script);
     let count = read.read_u8();
-    let dest = read.read_jump_pos();
+    let dest = read.read_u16();
     if read.is_invalid() {
         return;
     }
@@ -115,7 +115,7 @@ pub unsafe extern "C" fn try_townpoint(script: *mut bw::AiScript) {
     let first_town = (*active_towns.add(player as usize)).first;
     let towns = ListIter(first_town).count();
     if towns <= count as usize {
-        (*script).pos = dest;
+        (*script).pos = dest as u32;
     }
 }
 
