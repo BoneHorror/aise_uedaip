@@ -103,6 +103,22 @@ unsafe fn attack_to_pos(player: u8, grouping: bw::Point, target: bw::Point) {
     (*region).target_region_id = target_region; // Yes, 0-based
 }
 
+pub unsafe extern "C" fn try_townpoint(script: *mut bw::AiScript) {
+    let mut read = ScriptData::new(script);
+    let count = read.read_u8();
+    let dest = read.read_jump_pos();
+    if read.is_invalid() {
+        return;
+    }
+    let player = (*script).player as u8;
+    let active_towns = samase::active_towns();
+    let first_town = (*active_towns.add(player as usize)).first;
+    let towns = ListIter(first_town).count();
+    if towns <= count as usize {
+        (*script).pos = dest;
+    }
+}
+
 pub unsafe extern "C" fn attack_to(script: *mut bw::AiScript) {
     let mut read = ScriptData::new(script);
     let grouping = read.read_position();

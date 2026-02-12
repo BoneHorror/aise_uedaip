@@ -464,6 +464,7 @@ pub unsafe extern "C" fn samase_plugin_init(api: *const PluginApi) {
     aiscript_opcode(api, 0x46, crate::aiscript::do_morph);
     aiscript_opcode(api, 0x4c, crate::aiscript::train);
     aiscript_opcode(api, 0x5a, crate::aiscript::clear_regions);
+    aiscript_opcode(api, 0x70, crate::aiscript::try_townpoint);
     aiscript_opcode(api, 0x71, crate::aiscript::attack_to);
     aiscript_opcode(api, 0x72, crate::aiscript::attack_timeout);
     aiscript_opcode(api, 0x73, crate::aiscript::issue_order);
