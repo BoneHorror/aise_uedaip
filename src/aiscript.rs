@@ -4040,8 +4040,11 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
 
     let ai = ai::PlayerAi::get(player);
     if (*ai.0).attack_grouping_region != 0 {
-        bw_print!("Aiscript rush: Attack is already being prepared for player {}", player);
-        return false; //don't jump if either of those is triggered? ideally this is written only with a debug build
+        let region = ai_region(player as u32, (*ai.0).attack_grouping_region - 1);
+        if (*region).state == 8 {
+            bw_print!("Aiscript rush: Attack is already being prepared for player {}", player);
+            return false;
+        }
     }
     if samase::ai_get_attack_force(player) > 0 {
         bw_print!("Aiscript rush: Attack force is not empty for player {}", player);
