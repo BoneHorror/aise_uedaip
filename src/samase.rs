@@ -1,4 +1,4 @@
-use std::ffi::c_void;
+use std::ffi::{CStr, c_void};
 use std::mem;
 use std::ptr::null_mut;
 use std::sync::atomic::{AtomicU8, AtomicUsize, Ordering};
@@ -77,11 +77,14 @@ const GLOBALS: &[VarId] = &[
     VarId::AiRegions,
     VarId::PlayerAi,
     VarId::ActiveAiTowns,
+    VarId::LocalUniquePlayerId,
+    VarId::IsMultiplayer,
     // Writable
     VarId::FirstAiScript,
     VarId::FirstFreeAiScript,
     // Optional
     VarId::RngSeed,
+    VarId::IsPaused,
     // Writable + Optional
 ];
 
@@ -238,6 +241,22 @@ pub fn map_tile_flags() -> *mut u32 {
     read_var(VarId::MapTileFlags) as _
 }
 
+pub fn local_unique_player_id() -> u32 {
+    read_var(VarId::LocalUniquePlayerId) as _
+}
+
+pub fn is_multiplayer() -> bool {
+    read_var(VarId::IsMultiplayer) != 0
+}
+
+pub fn is_paused() -> Option<bool> {
+    if opt_global!(VarId::IsPaused) >= 2 {
+        Some(read_var(VarId::IsPaused) != 0)
+    } else {
+        None
+    }
+}
+
 static UNIT_BASE_STRENGTH: GlobalFunc<extern "C" fn(*mut *mut u32)> = GlobalFunc::new();
 pub fn unit_base_strength() -> (*mut u32, *mut u32) {
     let mut out = [null_mut(); 2];
@@ -324,6 +343,7 @@ static AI_REMOVE_FROM_ATTACK_FORCE: AtomicUsize = AtomicUsize::new(0);
 static AI_ATTACK_PREPARE: AtomicUsize = AtomicUsize::new(0);
 static AI_ATTACK_CLEAR: AtomicUsize = AtomicUsize::new(0);
 static AI_GET_ATTACK_FORCE: AtomicUsize = AtomicUsize::new(0);
+static DO_SAVE: AtomicUsize = AtomicUsize::new(0);
 
 static FUNCS: &[(&AtomicUsize, FuncId)] = &[
 ];
@@ -333,6 +353,7 @@ static OPTIONAL_FUNCS: &[(&AtomicUsize, FuncId)] = &[
     (&AI_ATTACK_PREPARE, FuncId::AiAttackPrepare),
     (&AI_ATTACK_CLEAR, FuncId::AiAttackClear),
     (&AI_GET_ATTACK_FORCE, FuncId::AiGetAttackForce),
+    (&DO_SAVE, FuncId::DoSave),
 ];
 
 #[inline]
@@ -434,6 +455,32 @@ unsafe fn aiscript_opcode(
     }
 }
 
+pub fn do_save_supported() -> bool {
+    let func = load_func_opt::<
+        unsafe extern "C" fn(*mut c_void, *const i8, u32, *const i8, u32, u32) -> u32
+    >(&DO_SAVE);
+    func.is_some()
+}
+
+pub unsafe fn do_save(
+    handle: *mut c_void,
+    filename: &CStr,
+    time: u32,
+    name_unused: &CStr,
+    unk_unused: u32,
+    game_elapsed_seconds: u32,
+) -> u32 {
+    let func = load_func_opt::<
+        unsafe extern "C" fn(*mut c_void, *const i8, u32, *const i8, u32, u32) -> u32
+    >(&DO_SAVE);
+    if let Some(func) = func {
+        func(handle, filename.as_ptr(), time, name_unused.as_ptr(), unk_unused, game_elapsed_seconds)
+    } else {
+        warn!("do_save not supported");
+        0
+    }
+}
+
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn samase_plugin_init(api: *const PluginApi) {
     bw_dat::set_is_scr(crate::is_scr());
@@ -516,6 +563,7 @@ pub unsafe extern "C" fn samase_plugin_init(api: *const PluginApi) {
     aiscript_opcode(api, 0xa1, crate::aiscript::build_at);
     aiscript_opcode(api, 0xa2, crate::aiscript::debug_name);
     aiscript_opcode(api, 0xa3, crate::aiscript::if_preparing);
+    aiscript_opcode(api, 0xa4, crate::aiscript::autosave);
     aiscript_opcode(api, 0x49, crate::aiscript::rush_command);
 
     GET_REGION.init(
@@ -576,6 +624,10 @@ pub unsafe extern "C" fn samase_plugin_init(api: *const PluginApi) {
         FuncId::AiRemoveFromAttackForce as u16,
         crate::ai::remove_from_attack_force_hook as *const() as _,
     );
+    ((*api).hook_func)(
+        FuncId::StepGameLoop as u16,
+        crate::globals::step_game_loop_hook as *const() as _,
+    );
 
     let mut dat_len = 0usize;
     let units_dat = ((*api).extended_dat)(0).expect("units.dat")(&mut dat_len);
@@ -598,14 +650,21 @@ pub unsafe extern "C" fn samase_plugin_init(api: *const PluginApi) {
         crate::globals::init_game,
     );
     if result != 0 {
-        result = ((*api).hook_ingame_command)(6, crate::globals::wrap_save, None);
-        if !crate::is_scr() {
-            // Hackfix for mtl
-            let _ = ((*api).hook_ingame_command)(
-                0xcc,
-                nop_command_hook,
-                Some(mtl_rally_command_length),
-            );
+        result = ((*api).hook_func)(
+            FuncId::DoSave as u16,
+            crate::globals::hook_do_save as *const () as _,
+        );
+        if result == 0 {
+            // Fallback to command hook
+            result = ((*api).hook_ingame_command)(6, crate::globals::hook_save_command, None);
+            if !crate::is_scr() {
+                // Hackfix for mtl
+                let _ = ((*api).hook_ingame_command)(
+                    0xcc,
+                    nop_command_hook,
+                    Some(mtl_rally_command_length),
+                );
+            }
         }
     }
     if result == 0 {
