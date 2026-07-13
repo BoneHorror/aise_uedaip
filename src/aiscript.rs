@@ -2144,8 +2144,7 @@ pub unsafe extern "C" fn autosave(script: *mut bw::AiScript) {
         // save code needs to be changed to support that.
         return;
     }
-    let game = bw::game();
-    crate::save::do_autosave(name, amount as u32, game);
+    globals::queue_autosave(name, amount as u32);
 }
 
 pub unsafe extern "C" fn ping(script: *mut bw::AiScript) {
