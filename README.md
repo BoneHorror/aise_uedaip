@@ -63,3 +63,7 @@ This opcode checks if there is a preparation region set in memory or if there ar
 ### if_attacking
 
 if_attacking was modified to make an extra check whether the AI player has a state 8 region.
+
+### try_townpoint
+
+try_townpoint now <= instead of ==
