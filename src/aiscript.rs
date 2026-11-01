@@ -4135,8 +4135,8 @@ unsafe fn check_aiscript_rush(player: u8, mode: u8, x: i32, y: i32) -> bool {
                 game.unit_count(enemy, unit::KUKULZA_GUARDIAN) > 8 || //Legionnaire
                 game.unit_count(enemy, unit::JIM_RAYNOR_VULTURE) > 5 || // Scorpion
                 game.unit_count(enemy, unit::ZEALOT) > 8 ||
-                game.unit_count(player, unit::DRAGOON) > 6 ||
-                game.unit_count(player, unit::HYDRALISK) > 10
+                game.unit_count(enemy, unit::DRAGOON) > 6 ||
+                game.unit_count(enemy, unit::HYDRALISK) > 10
         }
         0x5 => { //low ground score
             terran_ground_score(game, enemy) > 4 ||
