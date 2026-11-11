@@ -265,6 +265,7 @@ static OPCODE_NAMES: &[&str] = &[
     "build_at",             // 0xa1
     "debug_name",           // 0xa2
     "if_preparing",   // 0xa3
+    "autosave",   // 0xa4
 ];
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -567,6 +568,8 @@ static OPCODE_PARAMS: &[OpcodeParam] = &[
     OpcodeParam::one(OpParam::String),
     // if_preparing
     OpcodeParam::one(OpParam::Address),
+    // autosave
+    OpcodeParam::two(OpParam::String, OpParam::U8),
 ];
 
 unsafe extern "C" fn debug_tab_scripts(api: *const DebugUiDraw, _: *mut c_void) {
